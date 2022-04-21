@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Skip List implementation for University of Alberta CMPUT 403 final project Winter 2022.
  * 
  * Based on description from https://en.wikipedia.org/wiki/Skip_list.
@@ -98,11 +98,7 @@ private:
 template <typename T>
 skip_list<T>::skip_list(float p) : size_(0), p_(p)
 {
-#if __cplusplus >= 201703L // static_assert needs at least C++17
-    static_assert(p >= 0 && p <= 1);
-#else
     assert(p >= 0 && p <= 1);
-#endif
 }
 
 /* Copy constructor */
