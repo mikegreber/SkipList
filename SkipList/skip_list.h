@@ -94,7 +94,7 @@ private:
 };
 
 
-/* Skip List. p is the probability (must be in range [0,1] that an inserted element will be inserted into a higher layer. */
+/* Skip List. p is the probability (must be in range [0,1]) that an inserted element will be inserted into a higher layer. */
 template <typename T>
 skip_list<T>::skip_list(float p) : size_(0), p_(p)
 {

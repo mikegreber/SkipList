@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Test functions for comparing skip_list and sorted_linked_list performance and correctness.
 */
 #include <cassert>
@@ -7,11 +7,9 @@
 #include <random>
 #include <vector>
 #include <string>
-
-#include "tests.h"
-
 #include <list>
 
+#include "tests.h"
 #include "skip_list.h"
 #include "sorted.h"
 #include "sorted_container.h"
@@ -26,6 +24,7 @@ void insertList(const std::vector<T>& input, sorted<T>& list)
 	assert(list.Size() == 0);
 	for (const auto i : input) list.Insert(i);
 }
+
 
 /*
  * calls Insert() with all elements in input on list, adds modifier to each input
@@ -96,9 +95,9 @@ bool equal(const sorted<T>& x, const sorted<T>& y)
 			return false;
 		}
 			
-
 	return true;
 }
+
 
 /*
  * returns true if sorted lists a, b, and c are equivalent
@@ -118,6 +117,7 @@ bool equal(const sorted<T>& x, const sorted<T>& y, const sorted<T>& z)
 
 	return true;
 }
+
 
 /*
  * returns true if all sorted lists are equivalent
@@ -196,6 +196,7 @@ bool getInput(T& integer, const std::string& fail_message = " Invalid input ", b
 	}
 }
 
+
 /*
  * Runs a performance test comparing the skip list implementation with a sorted linked list
  */
@@ -211,7 +212,7 @@ void run_performance_test()
 		unsigned long long contains_time;
 	};
 	
-	std::cout << "\n******************************************************************************************************"<< std::endl;
+	std::cout << "\n******************************************************************************************************" << std::endl;
 	std::cout << "\n Performance tests for Skip List vs Sorted Linked List\n" << std::endl;
 	
 	std::cout << "\n Enter n for performance tests (recommend 5000): ";
@@ -235,7 +236,7 @@ void run_performance_test()
 	const std::vector<sorted<unsigned long long>*> lists { &skipList, &linked_list, &vector_list };
 	std::vector<results> results{ &skipList, &linked_list, &vector_list };
 	
-	std::cout << " -----------------------------------------------------------------------------------------------------"<< std::endl;
+	std::cout << " -----------------------------------------------------------------------------------------------------" << std::endl;
 	std::cout << "\n Testing Insert() for skip list, sorted vector list, and sorted linked list by\n" <<
 		" inserting " << n << " elements in random order" << std::endl;
 
@@ -341,7 +342,7 @@ void run_performance_test()
 		auto& result = results[i];
 		
 		result.contains_time =  time(
-			"\n  Testing Contains() for skip list",
+			"\n  Testing Contains() for " + list->GetName(),
 			[&]
 			{
 				// shuffle input
@@ -370,7 +371,9 @@ void run_performance_test()
 
 	
 	std::cout <<"\n -----------------------------------------------------------------------------------------------------" << std::endl;
-	std::cout << "\n Performance results for " << n << " method calls for skip list, sorted linked list and sorted vector list:\n" << std::endl;
+	std::cout << "\n Performance results for " << n <<
+        " method calls for skip list, sorted linked list and sorted vector list:\n" << std::endl;
+    
 	std::cout << " ms = microseconds" << std::endl;
 	std::cout << "                     ";
 	for (const auto& result : results) printf("%20s", result.list_name.c_str());
@@ -407,7 +410,6 @@ void run_performance_test()
 }
 
 
-
 /*
  * Runs correctness tests on skip-list
  */
@@ -430,7 +432,9 @@ void run_correctness_test()
 
 	const std::vector<sorted<unsigned long long>*> lists { &skipList, &linked_list, &vector_list };
 	
-	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent\n   with correct size after Insert():";
+	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent" <<
+        "\n   with correct size after Insert():";
+    
 	for (const auto i : input)
 	{
 		for (const auto list : lists)
@@ -454,7 +458,9 @@ void run_correctness_test()
 	std::cout << "\n   Passed!\n" << std::endl;
 	
 
-	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent\n   with correct size after Remove() (no misses):";
+	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent" <<
+        "\n   with correct size after Remove() (no misses):";
+    
 	for (const auto i : input)
 	{
 		for (const auto list : lists)
@@ -483,7 +489,9 @@ void run_correctness_test()
 	
 	constexpr auto n_half = n>>1;
 	
-	std::cout << " - checking if skip list, sorted linked list, and sorted vector list return the same response\n   for Contains() (50% misses):";
+	std::cout << " - checking if skip list, sorted linked list, and sorted vector list return the same response" <<
+        "\n   for Contains() (50% misses):";
+    
 	for (const auto i : input)
 	{
 		const bool contains = lists[0]->Contains(i + n_half);
@@ -501,7 +509,9 @@ void run_correctness_test()
 	std::cout << "\n   Passed!\n" << std::endl;
 
 	
-	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent\n   with correct size after Remove() (50% misses):";
+	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent" <<
+        "\n   with correct size after Remove() (50% misses):";
+    
 	for (const auto i : input)
 	{
 		for (const auto list : lists)
@@ -544,12 +554,13 @@ void run_free_test()
 	{
 		std::vector<long long> input;
 		input.push_back(1);
-		for (int i = 1; i < n; ++i) input.push_back(input.back() + 1 + 10 * static_cast<long long>(static_cast<float>(rand()))/RAND_MAX);
+		for (int i = 1; i < n; ++i)
+            input.push_back(input.back() + 1 + 10
+                            * static_cast<long long>(static_cast<float>(rand()))/RAND_MAX);
 
 		std::random_device rd;
 		std::mt19937 g(rd());
 		std::shuffle(input.begin(), input.end(), g);
-	
 	
 		for (const auto i : input)
 		{

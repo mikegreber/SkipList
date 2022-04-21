@@ -1,5 +1,5 @@
-﻿/*
- * Interface for running skip list demo and tests
+/*
+ * Program entry point and nterface for running skip list demo and tests.
  */
 
 #include <iostream>

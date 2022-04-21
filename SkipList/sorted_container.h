@@ -53,22 +53,32 @@ private:
 	Container container_;
 };
 
+/*
+ * Returns true if the container contains val
+ */
 template <class Container>
 bool sorted_container<Container>::Contains(T val)
 {
 	return std::find(container_.begin(), container_.end(), val) != container_.end();
 }
 
+/*
+ * Inserts val into the container in its sorted position
+ */
 template <class Container>
 void sorted_container<Container>::Insert(T val)
 {
 	auto it =
 		std::find_if(container_.begin(), container_.end(),
-		[&](const T& a) {return a >= val; });
+		[&](const T& a) { return a >= val; });
 
 	container_.insert(it, val);
 }
 
+/*
+ * Removes the first instance of val from the container.
+ * Returns false if val is not in the container.
+ */
 template <class Container>
 bool sorted_container<Container>::Remove(T val)
 {
@@ -81,18 +91,27 @@ bool sorted_container<Container>::Remove(T val)
 	return false;
 }
 
+/*
+ * Clears all elements from the container.
+ */
 template <class Container>
 void sorted_container<Container>::Clear()
 {
 	container_.clear();
 }
 
+/*
+ * Returns the number of elements in the container.
+ */
 template <class Container>
 size_t sorted_container<Container>::Size() const
 {
 	return container_.size();
 }
 
+/*
+ * Returns container values as a vector.
+ */
 template <class Container>
 std::vector<typename sorted_container<Container>::T> sorted_container<Container>::AsVector() const
 {
@@ -107,7 +126,9 @@ std::vector<typename sorted_container<Container>::T> sorted_container<Container>
 	return vector;
 }
 
-
+/*
+ * Prints the contents the container.
+ */
 template <class Container>
 void sorted_container<Container>::Print()
 {
