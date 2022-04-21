@@ -214,11 +214,11 @@ void run_performance_test()
 	std::cout << "\n******************************************************************************************************"<< std::endl;
 	std::cout << "\n Performance tests for Skip List vs Sorted Linked List\n" << std::endl;
 	
-	std::cout << "\n Enter n for performance tests (recommend 1000): ";
+	std::cout << "\n Enter n for performance tests (recommend 5000): ";
 	long long n;
 	getInput(n);
 
-	std::cout << "\n      Enter repetitions per test (recommend 10): ";
+	std::cout << "\n      Enter repetitions per test (recommend 5): ";
 	unsigned int repetitions;
 	getInput(repetitions);
 	
@@ -403,7 +403,7 @@ void run_performance_test()
 		printf("%19.2f%%", 100 * static_cast<double>(results[i].contains_time) / static_cast<double>(results[0].contains_time) - 100);
 	std::cout << std::endl;
 	
-	std::cout << "\n *Skip List Speed Up % = 100 * list_time / skip_list_time - 100" << std::endl;
+	std::cout << "\n *Skip List Speed Up % = 100 * (List Execution Time) / (Skip List Execution Time) - 100" << std::endl;
 }
 
 
@@ -430,7 +430,7 @@ void run_correctness_test()
 
 	const std::vector<sorted<unsigned long long>*> lists { &skipList, &linked_list, &vector_list };
 	
-	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted with\n   correct size after Insert():";
+	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent\n   with correct size after Insert():";
 	for (const auto i : input)
 	{
 		for (const auto list : lists)
@@ -454,7 +454,7 @@ void run_correctness_test()
 	std::cout << "\n   Passed!\n" << std::endl;
 	
 
-	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted with correct\n   size after Remove() (no misses):";
+	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent\n   with correct size after Remove() (no misses):";
 	for (const auto i : input)
 	{
 		for (const auto list : lists)
@@ -501,7 +501,7 @@ void run_correctness_test()
 	std::cout << "\n   Passed!\n" << std::endl;
 
 	
-	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted with correct\n   size after Remove() (50% misses):";
+	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent\n   with correct size after Remove() (50% misses):";
 	for (const auto i : input)
 	{
 		for (const auto list : lists)
@@ -533,9 +533,9 @@ void run_correctness_test()
 void run_free_test()
 {
 	std::cout << "\n******************************************************************************************************"<< std::endl;
-	std::cout << "\n Free test for Skip List\n" << std::endl;
+	std::cout << "\n Free Test for Skip List\n" << std::endl;
 	
-	std::cout << "\n Enter initial n for skip-list (20 recommended): ";
+	std::cout << "\n Enter initial n for skip list (20 recommended): ";
 	int n;
 	getInput(n);
 	

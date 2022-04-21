@@ -26,7 +26,7 @@ once the search (O(logn)) is complete.
      for performance comparison. Used to create a sorted vector list and a sorted linked list for performance
      comparisons with skip list.
 
-#### sorted_list.h
+#### sorted.h
    - contains an interface class requiring Insert(), Remove(), Contains(), and Size() methods. 
    - skip_list and sorted_container implement this interface to simplify testing and performance comparisons.
 
