@@ -11,6 +11,11 @@ search time complexity (like a sorted array) combined with the O(logn) insertion
 a standard linked list. This faster speed comes with the cost of an increased memory footprint (roughly double) 
 compared to a standard linked list. This implementation meets these criteria.
 
+This implementation achieves O(logn) runtime for Insert(), Remove(), and Contains() at high n. This is because of the
+quick search capability, starting with a sparse outer layer, and moving inward to more dense layers as we get closer to
+the search result. Insert() and Remove() just simply insert a node in the underlying linked list (O(1)) at position 
+once the search (O(logn)) is complete.
+
 ### Files
 
 #### skip_list.h
@@ -55,6 +60,10 @@ compared to a standard linked list. This implementation meets these criteria.
    - Results include raw execution time in milliseconds, and the comparative % speed up of skip list versus the other lists
      for each method.
    - Results are reported in a table after each method test, as well as in a summary at the end of the test.
+   - The speed advantages of the skip list will improve with higher n, but so will the test time since the performance test
+     compares against the slower sorted linked list and sorted vector list.
+   - The skip list will be outperformed at small n for some operations by the other lists due to having a higher base overhead
+     and element size for managing the extra layers.
 
 
 2. Correctness Test
@@ -77,3 +86,12 @@ compared to a standard linked list. This implementation meets these criteria.
 
 ### Resources
 1. https://en.wikipedia.org/wiki/Skip_list
+
+
+### Credits
+
+Author: Mike Greber
+
+Instructor: Zachary Friggstad
+
+University of Alberta - CMPUT 403 Winter 2022.
