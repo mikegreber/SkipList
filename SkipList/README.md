@@ -45,11 +45,8 @@ once the search (O(logn)) is complete.
 
 2. Enter the command below, it will build and run the program:
        
-       make
-
-3. To just run the program after building, enter the command:
-
        make run
+
 
 ### Output Interpretation
 
