@@ -4,7 +4,7 @@ A skip list is a data structure for holding an ordered sequence with O(logn) sea
 
 A standard ordered array allows for O(logn) search time (using a binary search), but insertion and deletion have O(n) time 
 complexity. A standard linked list allows for O(1) insertion and deletion time complexity, but has O(n) search time complexity. 
-A skip list achieves the fast search time complexity of an ordered array with the quick insertion time of a linked list.
+A skip list achieves the fast search time complexity of an ordered array with the quick insertion/deletion time of a linked list.
 
 The skip list is a linked list-like structure that builds a linked hierarchy of subsequences, going from more to less sparse
 each subsequences, that enables O(logn) search time complexity (like a sorted array), and O(1) insertion and deletion time 
