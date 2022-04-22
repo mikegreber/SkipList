@@ -2,10 +2,10 @@
 #include <vector>
 
 /*
- * Interface for comparing sorted list implementations.
+ * Interface for sorted list implementations.
  */
 template <typename T>
-class sorted
+class sorted_list
 {
 public:
 	// return name of the sorted container
@@ -25,9 +25,12 @@ public:
 
 	// returns the number of elements in the list
 	virtual size_t Size() const = 0;
+
+    // clear and fill the container with sequential elements from min to max
+	virtual void Fill(T min, T max) = 0;
 	
 	// return list as a vector
 	virtual std::vector<T> AsVector() const = 0;
 
-	virtual ~sorted() = default;
+	virtual ~sorted_list() = default;
 };
