@@ -5,7 +5,7 @@
  * A skip list is an ordered sequence data structure with O(logn) running time for Insert(), Remove(), and Contains().
  * Advantages are fast searching like an ordered array, combined with fast insertion/deletion like a linked list.
  *
- * Should work with any type T that defines <,>, ==, and !=.
+ * Should work with any type T that defines <,>, ==, !=, and operator--().
  * 
  * Author: Mike Greber
  */
@@ -16,7 +16,7 @@
 #include <iostream>
 #include <cassert>
 
-#include "sorted.h"
+#include "sorted_list.h"
 
 
 /* node for use in with skip_list */
@@ -39,10 +39,9 @@ struct skip_list_node
  * Skip List implementation, based on https://en.wikipedia.org/wiki/Skip_list. Randomly inserts in new nodes into higher layers.
  */
 template <typename T>
-class skip_list : public sorted<T>
+class skip_list final : public sorted_list<T>
 {
 public:
-
     // Constructor
     skip_list(float p = 0.5);
 
@@ -78,6 +77,9 @@ public:
     
     // returns the number of elements in the list
     size_t Size() const override { return size_; }
+
+    // clear and fill the container with sequential elements from min to max
+    void Fill(T min, T max) override;
 
     // return list as a vector
     std::vector<T> AsVector() const override;
@@ -377,6 +379,16 @@ skip_list_node<T>* skip_list<T>::Find(T val, int& layer)
     if (current->val == val) return current;
     
     return nullptr;
+}
+
+/*
+ * clear and fill the container with sequential elements from min to max
+ */
+template <typename T>
+void skip_list<T>::Fill(T min, T max)
+{
+    Clear();
+    for (T i = max; i > min; --i) Insert(i);
 }
 
 /*

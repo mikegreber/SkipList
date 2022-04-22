@@ -10,7 +10,7 @@ The skip list is a linked list-like structure that builds a linked hierarchy of 
 each subsequences, that enables O(logn) search time complexity (like a sorted array), and O(1) insertion and deletion time 
 complexity of a linked list. The skip list is therefore able insert/delete elements in their sorted position in O(logn) time 
 (O(logn) to find the sorted position, and O(1) time for the insertion/deletion). This faster speed comes with the cost of 
-an increased memory footprint (roughly double) compared to a standard linked list.
+an increased memory footprint (at least double) compared to a standard linked list.
 
 This implementation achieves O(logn) runtime for Insert(), Remove(), and Contains() at high n. 
 
@@ -20,14 +20,17 @@ This implementation achieves O(logn) runtime for Insert(), Remove(), and Contain
 #### skip_list.h
    - contains the skip list template data structure.
 
-#### sorted_container.h
-   - contains a template implementation for making sorted lists with STL containers and algorithms 
-     for performance comparison. Used to create a sorted vector list and a sorted linked list for performance
-     comparisons with skip list.
+#### sorted_linked_list.h
+   - contains a template for a sorted linked list using std::list along with std::find algorithms 
+     for performance comparison.
 
-#### sorted.h
-   - contains an interface class requiring Insert(), Remove(), Contains(), and Size() methods. 
-   - skip_list and sorted_container implement this interface to simplify testing and performance comparisons.
+#### sorted_vector.h
+   - contains a template for a sorted vector using std::vector along with SLT binary search algorithms 
+     for performance comparison.
+
+#### sorted_list.h
+   - contains an interface class requiring GetName(), Insert(), Remove(), Contains(), Clear(), Fill(), Size(), and AsVector() methods. 
+   - skip_list, sorted_linked_list, and sorted_vector implement this interface to simplify testing and performance comparisons.
 
 #### tests.h / tests.cpp
    - contain test logic for running performance tests, correctness tests, and for an interactive visual
@@ -51,15 +54,16 @@ This implementation achieves O(logn) runtime for Insert(), Remove(), and Contain
 
 1. Performance Test
 
-   - Reports and compares execution time for Insert(), Remove(), and Contains() for skip list, sorted linked list,
-     and sorted vector list.
+   - Options presented to run skip list performance test against either or both sorted linked list and sorted vector list. 
+   - Reports and compares execution time for Insert(), Remove(), and Contains() for the tested lists.
    - Results include raw execution time in milliseconds, and the comparative % speed up of skip list versus the other lists
      for each method.
    - Results are reported in a table after each method test, as well as in a summary at the end of the test.
    - The speed advantages of the skip list will improve with higher n, but so will the test time since the performance test
      compares against the slower sorted linked list and sorted vector list.
    - The skip list will be outperformed at small n for some operations by the other lists due to having a higher base overhead
-     and element size for managing the extra layers.
+     for managing the extra layers. Contains() (search only) will have a similar execution time between skip list and sorted 
+     vector list at high n.
 
 
 2. Correctness Test

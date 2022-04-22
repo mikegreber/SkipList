@@ -1,7 +1,6 @@
 /*
 * Test functions for comparing skip_list and sorted_linked_list performance and correctness.
 */
-#include <cassert>
 #include <chrono>
 #include <functional>
 #include <random>
@@ -11,29 +10,17 @@
 
 #include "tests.h"
 #include "skip_list.h"
-#include "sorted.h"
-#include "sorted_container.h"
+#include "sorted_linked_list.h"
+#include "sorted_vector.h"
 
 
 /*
  * calls Insert() with all elements in input on list
  */
 template<typename T>
-void insertList(const std::vector<T>& input, sorted<T>& list)
+void insertList(const std::vector<T>& input, sorted_list<T>& list)
 {
-	assert(list.Size() == 0);
 	for (const auto i : input) list.Insert(i);
-}
-
-
-/*
- * calls Insert() with all elements in input on list, adds modifier to each input
- */
-template<typename T>
-void insertList(const std::vector<T>& input, sorted<T>& list, T modifier)
-{
-	assert(list.Size() == 0);
-	for (const auto i : input) list.Insert(i + modifier);
 }
 
 
@@ -41,7 +28,7 @@ void insertList(const std::vector<T>& input, sorted<T>& list, T modifier)
  * calls Remove() with all elements in input on list
  */
 template<typename T>
-void removeList(const std::vector<T>& input, sorted<T>& list)
+void removeList(const std::vector<T>& input, sorted_list<T>& list)
 {
 	for (const auto i : input) list.Remove(i);
 }
@@ -51,7 +38,7 @@ void removeList(const std::vector<T>& input, sorted<T>& list)
  * calls Contains() with all elements in input on list
  */
 template<typename T>
-void containsList(const std::vector<T>& input, sorted<T>& list)
+void containsList(const std::vector<T>& input, sorted_list<T>& list)
 {
 	for (const auto i : input) list.Contains(i);
 }
@@ -61,7 +48,7 @@ void containsList(const std::vector<T>& input, sorted<T>& list)
  * returns true list is sorted in non-decreasing order
  */
 template <typename T>
-bool isSorted(const sorted<T>& list)
+bool isSorted(const sorted_list<T>& list)
 {
 	auto vector = list.AsVector();
 	for (unsigned i = 1; i < vector.size(); ++i)
@@ -77,53 +64,10 @@ bool isSorted(const sorted<T>& list)
 
 
 /*
- * returns true if sorted lists a and b are equivalent
- */
-template <typename T>
-bool equal(const sorted<T>& x, const sorted<T>& y)
-{
-	auto a = x.AsVector();
-	auto b = y.AsVector();
-	
-	if (a.size() != b.size()) return false;
-
-	for (unsigned i = 0; i < a.size(); ++i)
-		if (a[i] != b[i])
-		{
-			std::cout << "   Fail!" << std::endl;
-			std::cout << "     " << x.GetName() << " and " << y.GetName() << " are not equivalent!" << std::endl;
-			return false;
-		}
-			
-	return true;
-}
-
-
-/*
- * returns true if sorted lists a, b, and c are equivalent
- */
-template <typename T>
-bool equal(const sorted<T>& x, const sorted<T>& y, const sorted<T>& z)
-{
-	auto a = x.AsVector();
-	auto b = y.AsVector();
-	auto c = z.AsVector();
-	
-	if (a.size() != b.size() || b.size() != c.size()) return false;
-
-	for (unsigned i = 0; i < a.size(); ++i)
-		if (a[i] != b[i] || b[i] != c[i])
-			return !equal(x,y) || !equal(x,z);
-
-	return true;
-}
-
-
-/*
  * returns true if all sorted lists are equivalent
  */
 template <typename T>
-bool equal(const std::vector<sorted<T>*>& lists)
+bool equal(const std::vector<sorted_list<T>*>& lists)
 {
 	if (lists.empty()) return true;
 
@@ -154,6 +98,8 @@ bool equal(const std::vector<sorted<T>*>& lists)
  */
 unsigned long long time(const std::string& message, const std::function<void()>& before, const std::function<void()>& function, unsigned repetitions = 1)
 {
+	assert(repetitions >= 1);
+	
 	std::cout << message <<  " (" << repetitions << " repetitions)" << std::endl;
 
 	unsigned long long duration = 0;
@@ -162,6 +108,7 @@ unsigned long long time(const std::string& message, const std::function<void()>&
 	while (repetitions--)
 	{
 		before();
+		
 		const auto start = std::chrono::high_resolution_clock::now();
 		function();
 		const auto stop = std::chrono::high_resolution_clock::now();
@@ -204,8 +151,8 @@ void run_performance_test()
 {
 	struct results
 	{
-		results(const sorted<unsigned long long>* list)
-		: list_name(list->GetName()), insert_time(0), remove_time(0), contains_time(0) {}
+		results(std::string name)
+		: list_name(std::move(name)), insert_time(0), remove_time(0), contains_time(0) {}
 		std::string list_name;
 		unsigned long long insert_time;
 		unsigned long long remove_time;
@@ -213,47 +160,82 @@ void run_performance_test()
 	};
 	
 	std::cout << "\n******************************************************************************************************" << std::endl;
-	std::cout << "\n Performance tests for Skip List vs Sorted Linked List\n" << std::endl;
-	
-	std::cout << "\n Enter n for performance tests (recommend 5000): ";
-	long long n;
-	getInput(n);
-
-	std::cout << "\n      Enter repetitions per test (recommend 5): ";
-	unsigned int repetitions;
-	getInput(repetitions);
-	
-	std::vector<unsigned long long> input(n);
-	for (int i = 0; i < n; ++i) input[i] = i;
+	std::cout << "\n Performance tests for Skip List vs Sorted Linked List and Sorted Vector List\n" << std::endl;
 	
 	std::random_device rd;
 	std::mt19937 g(rd());
-	
-	skip_list<unsigned long long> skipList;
-	sorted_container<std::list<unsigned long long>> linked_list("sorted linked list");
-	sorted_container<std::vector<unsigned long long>> vector_list("sorted vector list");
 
-	const std::vector<sorted<unsigned long long>*> lists { &skipList, &linked_list, &vector_list };
-	std::vector<results> results{ &skipList, &linked_list, &vector_list };
+	skip_list<unsigned long long> skip_list;
+	sorted_linked_list<unsigned long long> linked_list;
+	sorted_vector<unsigned long long> vector_list;
+
+	std::vector<sorted_list<unsigned long long>*> lists { &skip_list };
+	std::vector<results> results{ skip_list.GetName() };
+	
+
+	std::cout << "\n Compare with Sorted Linked List (slow)? (y/n): ";
+	char compare_linked = '0';
+	while (getInput(compare_linked) && compare_linked != 'y' && compare_linked != 'n')
+		std::cout << "\n                                         (y/n): ";
+	
+	if (compare_linked == 'y')
+	{
+		lists.push_back(&linked_list);
+		results.emplace_back(linked_list.GetName());
+	}
+	
+	std::cout << "\n             Compare with Sorted Vector? (y/n): ";
+	char compare_vector = '0';
+	while (getInput(compare_vector) && compare_vector != 'y' && compare_vector != 'n')
+		std::cout << "\n                                         (y/n): ";
+	
+	if (compare_vector == 'y')
+	{
+		lists.push_back(&vector_list);
+		results.emplace_back(vector_list.GetName());
+	}
+
+	if (compare_linked == 'y') 
+		std::cout << "\n ** N < 10,000 recommended for Sorted Linked List test (slow search) **" << std::endl;
+	else if (compare_vector == 'y')
+		std::cout << "\n ** N > 100,000 recommended for Sorted Vector List test to show benefit of Skip List **" << std::endl;
+	
+	std::cout << "\n                 Enter N for performance tests: ";
+	long long n;
+	getInput(n);
+	
+	std::cout << "\n                    Enter repetitions per test: ";
+	unsigned int repetitions;
+	getInput(repetitions);
+	
+	constexpr int multiplier = 5;
+	std::vector<unsigned long long> input(n);
+	for (long long i = 0; i < n; ++i) input[i] = i * multiplier;
+	const long long n_existing = n * multiplier;
 	
 	std::cout << " -----------------------------------------------------------------------------------------------------" << std::endl;
-	std::cout << "\n Testing Insert() for skip list, sorted vector list, and sorted linked list by\n" <<
-		" inserting " << n << " elements in random order" << std::endl;
+	std::cout << "\n Testing Insert() for";
+	for (const auto list : lists) std::cout << " { " << list->GetName() << " }";
+	std::cout <<" by\n inserting " << n << " elements in random order into a list containing " << n_existing << " elements." << std::endl;
 
 	for (unsigned i = 0; i < lists.size(); ++i)
 	{
 		auto& list = lists[i];
 		auto& result = results[i];
-		
+	
 		result.insert_time = time(
 		"\n  Testing Insert() for " + list->GetName(),
 		[&]
 		{
-			list->Clear();
+			// refill list
+			list->Fill(0, n_existing);
+		
+			// shuffle input
 			std::shuffle(input.begin(), input.end(), g);
 		},
 		[&]()
 		{
+			// call Insert() on list with all inputs
 			insertList(input, *list);
 		},
 		repetitions);
@@ -270,37 +252,34 @@ void run_performance_test()
 	for (unsigned i = 0; i < results.size(); ++i)
 		printf("%19.2f%%", 100 * static_cast<double>(results[i].insert_time) / static_cast<double>(results[0].insert_time) - 100);
 	std::cout << std::endl;
-	
-	
 
-	
+
+
+
 	std::cout <<"\n -----------------------------------------------------------------------------------------------------" << std::endl;
-	std::cout << "\n Testing Remove() for skip list, sorted vector list, and sorted linked list list by\n" <<
-		" calling Remove() on " << n << " elements in random order where 1/2 of calls are misses." << std::endl;
-
-	const unsigned long long n_half = n>>1;
+	std::cout << "\n Testing Remove() for";
+	for (const auto list : lists) std::cout << " { " << list->GetName() << " }";
+	std::cout << " by\n calling Remove() with " << n << " elements on a list containing " << n_existing / 2 << " elements." <<
+		"\n 50% of calls will be misses. " << std::endl;
 
 	for (unsigned i = 0; i < lists.size(); ++i)
 	{
 		auto& list = lists[i];
 		auto& result = results[i];
-		
+	
 		result.remove_time = time(
 		"\n  Testing Remove() for " + list->GetName(),
 		[&]
 		{
-			// refill list
-			list->Clear();
-
-			// make half miss in function with n_half modifier
-			insertList(input, *list, n_half);
-
+			// refill list with only middle elements
+			list->Fill(n_existing / 4, n_existing * 3/4);
+		
 			// shuffle input
 			std::shuffle(input.begin(), input.end(), g);
 		},
 		[&]()
 		{
-			// call remove on list with all input
+			// call Remove() on list with all inputs
 			removeList(input, *list);
 		},
 		repetitions);
@@ -319,28 +298,25 @@ void run_performance_test()
 	std::cout << std::endl;
 
 
-	
+
 
 	std::cout <<"\n -----------------------------------------------------------------------------------------------------" << std::endl;
-	std::cout << "\n Testing Contains() for skip list, sorted vector list, and sorted linked list list by\n" <<
-		" calling Contains() on " << n << " elements in random order where 1/2 of calls are misses." << std::endl;
-	
+	std::cout << "\n Testing Contains() for";
+	for (const auto list : lists) std::cout << " { " << list->GetName() << " }";
+	std::cout << " by\n calling Contains() with " << n << " elements on a list containing " << n_existing / 2 << " elements." <<
+		"\n 50% of calls will be misses. " << std::endl;
+
 	for (const auto list : lists)
 	{
-		list->Clear();
-		
-		// make half miss in function with n_half modifier
-		insertList(input, *list, n_half);
-	
-		// shuffle input
-		std::shuffle(input.begin(), input.end(), g);
+		// refill list with only middle elements
+		list->Fill(n_existing / 4, n_existing * 3/4);
 	}
-	
+
 	for (unsigned i = 0; i < lists.size(); ++i)
 	{
 		auto& list = lists[i];
 		auto& result = results[i];
-		
+	
 		result.contains_time =  time(
 			"\n  Testing Contains() for " + list->GetName(),
 			[&]
@@ -350,6 +326,7 @@ void run_performance_test()
 			},
 			[&]()
 			{
+				// call Contains() on list with all inputs
 				containsList(input, *list);
 			},
 			repetitions);
@@ -366,13 +343,13 @@ void run_performance_test()
 	for (unsigned i = 0; i < results.size(); ++i)
 		printf("%19.2f%%", 100 * static_cast<double>(results[i].contains_time) / static_cast<double>(results[0].contains_time) - 100);
 	std::cout << std::endl;
+
 	
-
-
 	
 	std::cout <<"\n -----------------------------------------------------------------------------------------------------" << std::endl;
-	std::cout << "\n Performance results for " << n <<
-        " method calls for skip list, sorted linked list and sorted vector list:\n" << std::endl;
+	std::cout << "\n Performance results for " << n << " method calls for";
+	for (const auto list : lists) std::cout << " { " << list->GetName() << " }";
+	std::cout << ":\n" << std::endl;
     
 	std::cout << " ms = microseconds" << std::endl;
 	std::cout << "                     ";
@@ -426,11 +403,11 @@ void run_correctness_test()
 	std::mt19937 g(rd());
 	std::shuffle(input.begin(), input.end(), g);
 	
-	skip_list<unsigned long long> skipList;
-	sorted_container<std::vector<unsigned long long>> vector_list("sorted vector list");
-	sorted_container<std::list<unsigned long long>> linked_list("sorted linked list");
+	skip_list<unsigned long long> skip_list;
+	sorted_linked_list<unsigned long long> linked_list;
+	sorted_vector<unsigned long long> vector_list;
 
-	const std::vector<sorted<unsigned long long>*> lists { &skipList, &linked_list, &vector_list };
+	const std::vector<sorted_list<unsigned long long>*> lists { &skip_list, &linked_list, &vector_list };
 	
 	std::cout << " - checking if skip list, sorted linked list, and sorted vector list remain sorted and equivalent" <<
         "\n   with correct size after Insert():";
@@ -549,15 +526,17 @@ void run_free_test()
 	int n;
 	getInput(n);
 	
-	skip_list<long long> skip;
+	skip_list<long long> skip_list;
 	if (n > 0)
 	{
+		// generate randomized input
 		std::vector<long long> input;
 		input.push_back(1);
 		for (int i = 1; i < n; ++i)
             input.push_back(input.back() + 1 + 10
                             * static_cast<long long>(static_cast<float>(rand()))/RAND_MAX);
 
+		// shuffle input
 		std::random_device rd;
 		std::mt19937 g(rd());
 		std::shuffle(input.begin(), input.end(), g);
@@ -565,11 +544,11 @@ void run_free_test()
 		for (const auto i : input)
 		{
 			std::cout << " Insert(" << i << ")" << std::endl;
-			skip.Insert(i);
-			skip.Print(true);
+			skip_list.Insert(i);
+			skip_list.Print(true);
 		}
 	}
-	else skip.Print();
+	else skip_list.Print();
 	
 	bool loop = true;
 	char c;
@@ -587,34 +566,38 @@ void run_free_test()
 		
 		switch (c)
 		{
+			// Remove()
 		case 'r':
 			{
 				if (!getInput(i, "Invalid input", false)) continue;
 				std::cout << "Remove(" << i << ") => ";
-				std::cout << (skip.Remove(i) ? "True" : "False") << std::endl;
-				skip.Print(true);
+				std::cout << (skip_list.Remove(i) ? "True" : "False") << std::endl;
+				skip_list.Print(true);
 				break;
 			}
+			// Contains()
 		case 'c':
 			{
 				if (!getInput(i,  "Invalid input", false)) continue;
 				std::cout << "Contains(" << i << ") => ";
-				std::cout << (skip.Contains(i) ? "True" : "False") << std::endl;
-				skip.Print(true);
+				std::cout << (skip_list.Contains(i) ? "True" : "False") << std::endl;
+				skip_list.Print(true);
 				break;
 			}
+			// Insert()
 		case 'i':
 			{
 				if (!getInput(i, "Invalid input", false)) continue;
 				std::cout << "Insert(" << i << ")" << std::endl;
-				skip.Insert(i);
-				skip.Print(true);
+				skip_list.Insert(i);
+				skip_list.Print(true);
 				break;
 			}
+			// Clear()
 		case 'x':
 			{
-				skip.Clear();
-				skip.Print(true);
+				skip_list.Clear();
+				skip_list.Print(true);
 				break;
 			}
 		case 'q':
@@ -629,7 +612,6 @@ void run_free_test()
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				break;
 			}
-			
 		}
 		
 	} while (loop);

@@ -1,10 +1,11 @@
 /*
- * Program entry point and nterface for running skip list demo and tests.
+ * Program entry point and user interface for running skip list demo and tests.
  */
 
 #include <iostream>
 
 #include "tests.h"
+
 
 int main(int argc, char* argv[])
 {

@@ -160,11 +160,13 @@
   <ItemGroup>
     <ClInclude Include="skip_list.h" />
     <ClInclude Include="sorted_container.h" />
-    <ClInclude Include="sorted.h" />
+    <ClInclude Include="sorted_list.h" />
+    <ClInclude Include="sorted_vector.h" />
     <ClInclude Include="tests.h" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.md" />
+    <ClInclude Include="sorted_linked_list.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

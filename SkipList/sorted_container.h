@@ -12,10 +12,10 @@
 #include <iostream>
 #include <ostream>
 
-#include "sorted.h"
+#include "sorted_list.h"
 
 template <class Container>
-class sorted_container final : public sorted<typename Container::value_type>
+class sorted_container final : public sorted_list<typename Container::value_type>
 {
 	typedef typename Container::value_type T;
 	
