@@ -72,7 +72,7 @@ This implementation achieves O(logn) runtime for Insert(), Remove(), and Contain
    - An interactive test showing the internal state of the skip list after each method call.
    - Initial n input auto populates the list. Don't make this too big or this won't be very useful as a visualization tool.
    - Input instructions are given as a prompt, with options to Insert(), Remove(), Contains(), and Clear(). As an example, to
-     call Input(5), enter:
+     call Insert(5), enter:
    
          i5 
    
