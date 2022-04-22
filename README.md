@@ -3,18 +3,18 @@
 A skip list is a data structure for holding an ordered sequence with O(logn) search, insertion, and deletion time complexity.
 
 A standard ordered array allows for O(logn) search time (using quick sort or merge sort for example), but insertion and
-deletion have O(n) time complexity. A standard linked list allows for O(logn) insertion and deletion time complexity,
-but has O(n) search time complexity.
+deletion have O(n) time complexity. A standard linked list allows for O(1) insertion and deletion time complexity,
+but has O(n) search time complexity. A skip list achieves the fast search time complexity of an ordered array with
+the quick insertion time of a linked list.
 
-The skip list is a linked list-like structure that builds a linked hierarchy of subsequences, allowing for O(logn) 
-search time complexity (like a sorted array) combined with the O(logn) insertion and deletion time complexity of
-a standard linked list. This faster speed comes with the cost of an increased memory footprint (roughly double) 
-compared to a standard linked list. This implementation meets these criteria.
+The skip list is a linked list-like structure that builds a linked hierarchy of subsequences, going from more to less sparse
+each subsequences, that enables O(logn) search time complexity (like a sorted array), and O(1) insertion and deletion time 
+complexity of a linked list. The skip list is therefore able insert/delete elements in their sorted position in O(logn) time 
+(O(logn) to find the sorted position, and O(1) time for the insertion/deletion). This faster speed comes with the cost of 
+an increased memory footprint (roughly double) compared to a standard linked list.
 
-This implementation achieves O(logn) runtime for Insert(), Remove(), and Contains() at high n. This is because of the
-quick search capability, starting with a sparse outer layer, and moving inward to more dense layers as we get closer to
-the search result. Insert() and Remove() just simply insert a node in the underlying linked list (O(1)) at position 
-once the search (O(logn)) is complete.
+This implementation achieves O(logn) runtime for Insert(), Remove(), and Contains() at high n. 
+
 
 ### Files
 
@@ -82,6 +82,7 @@ once the search (O(logn)) is complete.
 
 
 ### Resources
+
 1. https://en.wikipedia.org/wiki/Skip_list
 
 
