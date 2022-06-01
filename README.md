@@ -55,7 +55,17 @@ This implementation achieves O(logn) runtime for Insert(), Remove(), and Contain
 
 ### Output Interpretation
 
-1. Performance Test
+1. Demo
+   - An interactive test showing the internal state of the skip list after each method call.
+   - Initial n input auto populates the list. Don't make this too big or this won't be very useful as a visualization tool.
+   - Input instructions are given as a prompt, with options to Insert(), Remove(), Contains(), and Clear(). As an example, to
+     call Insert(5), enter:
+   
+         i5 
+   
+   - Entering q will return to the main menu.
+
+2. Performance Test
 
    - Options presented to run skip list performance test against either or both sorted linked list and sorted vector list. 
    - Reports and compares execution time for Insert(), Remove(), and Contains() for the tested lists.
@@ -69,21 +79,10 @@ This implementation achieves O(logn) runtime for Insert(), Remove(), and Contain
      vector list at high n.
 
 
-2. Correctness Test
+3. Correctness Test
    - Tests all 3 list types after many executions of each of Insert(), Remove(), and Contains().
    - Ensures each list remains in the correct sorted state after each function call.
    - Should just get a Passed message (test makes sure implementations are working correctly).
-   
-
-3. Free Test
-   - An interactive test showing the internal state of the skip list after each method call.
-   - Initial n input auto populates the list. Don't make this too big or this won't be very useful as a visualization tool.
-   - Input instructions are given as a prompt, with options to Insert(), Remove(), Contains(), and Clear(). As an example, to
-     call Insert(5), enter:
-   
-         i5 
-   
-   - Entering q will return to the main menu.
 
 
 
