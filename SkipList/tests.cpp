@@ -9,16 +9,49 @@
 #include <list>
 
 #include "tests.h"
-#include "skip_list.h"
+
+#include <forward_list>
+#include <ostream>
+
+#include "skip_list_test.h"
 #include "sorted_linked_list.h"
 #include "sorted_vector.h"
 
 
+class test_class
+{
+public:
+	test_class(const unsigned long long val) : val(val) {}
+	
+	// required for testing setup for fill() function
+	test_class& operator++()
+	{
+		++val;
+		return *this;
+	}
+
+	// required for testing setup for fill() function
+	test_class& operator--()
+	{
+		--val;
+		return *this;
+	}
+
+	// required for stl find functions for sorted_vector and sorted_linked_list
+	friend bool operator==(const test_class& lhs, const test_class& rhs) { return lhs.val == rhs.val; }
+	
+	bool operator<(const test_class& other) const { return val < other.val; }
+	friend std::ostream& operator<<(std::ostream& os, const test_class& obj){ return os << obj.val; }
+	
+private:
+	unsigned long long val;
+};
+
 /*
  * calls Insert() with all elements in input on list
  */
-template<typename T>
-void insertList(const std::vector<T>& input, sorted_list<T>& list)
+template<typename T, typename L>
+void insertList(const std::vector<T>& input, L& list)
 {
 	for (const auto i : input) list.Insert(i);
 }
@@ -27,8 +60,8 @@ void insertList(const std::vector<T>& input, sorted_list<T>& list)
 /*
  * calls Remove() with all elements in input on list
  */
-template<typename T>
-void removeList(const std::vector<T>& input, sorted_list<T>& list)
+template<typename T, typename L>
+void removeList(const std::vector<T>& input, L& list)
 {
 	for (const auto i : input) list.Remove(i);
 }
@@ -37,8 +70,8 @@ void removeList(const std::vector<T>& input, sorted_list<T>& list)
 /*
  * calls Contains() with all elements in input on list
  */
-template<typename T>
-void containsList(const std::vector<T>& input, sorted_list<T>& list)
+template<typename T, typename L>
+void containsList(const std::vector<T>& input, L& list)
 {
 	for (const auto i : input) list.Contains(i);
 }
@@ -47,12 +80,12 @@ void containsList(const std::vector<T>& input, sorted_list<T>& list)
 /*
  * returns true list is sorted in non-decreasing order
  */
-template <typename T>
-bool isSorted(const sorted_list<T>& list)
+template <typename L>
+bool isSorted(const L& list)
 {
 	auto vector = list.AsVector();
 	for (unsigned i = 1; i < vector.size(); ++i)
-		if (vector[i-1] > vector[i])
+		if (vector[i] < vector[i-1])
 		{
 			std::cout << "   Fail!" << std::endl;
 			std::cout << "     " << list.GetName() << " order invalid!" << std::endl;
@@ -62,6 +95,9 @@ bool isSorted(const sorted_list<T>& list)
 	return true;
 }
 
+/* equality comparison using only < operator */
+template <typename T>
+bool equal(T a, T b) { return (a < b) == (b < a); }
 
 /*
  * returns true if all sorted lists are equivalent
@@ -79,7 +115,7 @@ bool equal(const std::vector<sorted_list<T>*>& lists)
 
 	for (unsigned i = 0; i < vectors[0].size(); ++i)
 		for (unsigned j = 1; j < vectors.size(); ++j)
-			if (vectors[0][i] != vectors[j][i])
+			if (!equal(vectors[0][i], vectors[j][i]))
 			{
 				std::cout << "   Fail!" << std::endl;
 				std::cout << "     " << lists[0]->GetName() << " and " <<
@@ -149,6 +185,9 @@ bool getInput(T& integer, const std::string& fail_message = " Invalid input ", b
  */
 void run_performance_test()
 {
+
+std::forward_list<int> t;
+	
 	struct results
 	{
 		results(std::string name)
@@ -164,12 +203,19 @@ void run_performance_test()
 	
 	std::random_device rd;
 	std::mt19937 g(rd());
+	
+	// skip_list_test<unsigned long long> skip_list;
+	// sorted_linked_list<unsigned long long> linked_list;
+	// sorted_vector<unsigned long long> vector_list;
+	//
+	// std::vector<sorted_list<unsigned long long>*> lists { &skip_list };
 
-	skip_list<unsigned long long> skip_list;
-	sorted_linked_list<unsigned long long> linked_list;
-	sorted_vector<unsigned long long> vector_list;
+	skip_list_test<test_class> skip_list;
+	sorted_linked_list<test_class> linked_list;
+	sorted_vector<test_class> vector_list;
 
-	std::vector<sorted_list<unsigned long long>*> lists { &skip_list };
+	std::vector<sorted_list<test_class>*> lists { &skip_list };
+	
 	std::vector<results> results{ skip_list.GetName() };
 	
 
@@ -403,7 +449,7 @@ void run_correctness_test()
 	std::mt19937 g(rd());
 	std::shuffle(input.begin(), input.end(), g);
 	
-	skip_list<unsigned long long> skip_list;
+	skip_list_test<unsigned long long> skip_list;
 	sorted_linked_list<unsigned long long> linked_list;
 	sorted_vector<unsigned long long> vector_list;
 
@@ -517,7 +563,7 @@ void run_correctness_test()
 /*
  * Runs an interactive test of a skip-list
  */
-void run_free_test()
+void run_demo()
 {
 	std::cout << "\n******************************************************************************************************"<< std::endl;
 	std::cout << "\n Free Test for Skip List\n" << std::endl;

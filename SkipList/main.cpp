@@ -20,15 +20,20 @@ int main(int argc, char* argv[])
 	{
 		std::cout << "\n******************************************************************************************************"<< std::endl;
 		std::cout << "\n Main Menu:\n" << std::endl;
+		std::cout << " Enter d to run skip list demo" << std::endl;
 		std::cout << " Enter p to run performance test" << std::endl;
 		std::cout << " Enter c to run correctness test" << std::endl;
-		std::cout << " Enter f to run free test" << std::endl;
 		std::cout << " Enter q to quit" << std::endl;
 		std::cout << "\n ";
 		std::cin >> c;
 
 		switch(c)
 		{
+		case 'd':
+			{
+				run_demo();
+				break;
+			}
 		case 'p':
 			{
 				run_performance_test();
@@ -39,11 +44,7 @@ int main(int argc, char* argv[])
 				run_correctness_test();
 				break;
 			}
-		case 'f':
-			{
-				run_free_test();
-				break;
-			}
+		
 		case 'q':
 			{
 				loop = false;

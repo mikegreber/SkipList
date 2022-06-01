@@ -2,7 +2,7 @@
 #include <vector>
 
 /*
- * Interface for sorted list implementations.
+ * Interface for sorted list implementations for performance comparison.
  */
 template <typename T>
 class sorted_list
@@ -33,4 +33,13 @@ public:
 	virtual std::vector<T> AsVector() const = 0;
 
 	virtual ~sorted_list() = default;
+
+	// less than or equal comparison using only < operator
+	inline static bool Less_Or_Equal(T a, T b){ return !(b < a); }
+
+	// greater than or equal comparison using only < operator
+	inline static bool Greater_Or_Equal(T a, T b){ return !(a < b); }
+
+	// equality comparison using only < operator
+	inline static bool Equal(T a, T b) { return !(a < b || b < a); }
 };

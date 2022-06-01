@@ -1,11 +1,11 @@
-/*
+﻿/*
  * Skip List implementation for University of Alberta CMPUT 403 final project Winter 2022.
  * 
  * Based on description from https://en.wikipedia.org/wiki/Skip_list.
  * A skip list is an ordered sequence data structure with O(logn) running time for Insert(), Remove(), and Contains().
  * Advantages are fast searching like an ordered array, combined with fast insertion/deletion like a linked list.
  *
- * Should work with any type T that defines <,>, ==, !=, and operator--().
+ * Works with any type T that defines < operator.
  * 
  * Author: Mike Greber
  */
@@ -15,11 +15,9 @@
 #include <vector>
 #include <iostream>
 #include <cassert>
+#include <ostream>
 
-#include "sorted_list.h"
-
-
-/* node for use in with skip_list */
+/* node for use with skip_list */
 template <typename T>
 struct skip_list_node
 {
@@ -28,7 +26,7 @@ struct skip_list_node
     skip_list_node(T val, skip_list_node* next = nullptr, skip_list_node* prev = nullptr, skip_list_node* down = nullptr)
         : val(val), next(next), prev(prev), down(down) {}
     
-    T val;
+    const T val;
     skip_list_node* next;
     skip_list_node* prev;
     skip_list_node* down;
@@ -39,7 +37,7 @@ struct skip_list_node
  * Skip List implementation, based on https://en.wikipedia.org/wiki/Skip_list. Randomly inserts in new nodes into higher layers.
  */
 template <typename T>
-class skip_list final : public sorted_list<T>
+class skip_list
 {
 public:
     // Constructor
@@ -58,34 +56,26 @@ public:
     skip_list& operator=(skip_list&& other) noexcept;
 
     // Destructor
-    ~skip_list() override;
-
-    // return name of list
-    std::string GetName() const override { return "skip list"; }
+    ~skip_list();
     
     // returns true if list contains val
-    bool Contains(T val) override;
+    bool Contains(T val);
 
     // insert val into its sorted position in the list
-    void Insert(T val) override;
+    void Insert(T val);
 
     // remove val from list, returns false if val not in list
-    bool Remove(T val) override;
+    bool Remove(T val);
 
     // removes all elements form the list
-    void Clear() override;
+    void Clear();
     
     // returns the number of elements in the list
-    size_t Size() const override { return size_; }
-
-    // clear and fill the container with sequential elements from min to max
-    void Fill(T min, T max) override;
-
-    // return list as a vector
-    std::vector<T> AsVector() const override;
+    size_t Size() const { return size_; }
 
     // print the skip list to standard output. If internal_representation is true, all layers will be displayed
-    void Print(bool internal_representation = false);
+    void Print(bool internal_rep = false);
+    
 private:
     std::vector<skip_list_node<T>*> layers_;
     size_t size_;
@@ -93,6 +83,42 @@ private:
 
     // finds the first node matching val in any layer, starting search from highest layer
     skip_list_node<T>* Find(T val, int& layer);
+    
+    // less than or equal comparison using only < operator
+    inline static bool Less_Or_Equal(T a, T b){ return !(b < a); }
+
+    // equality comparison using only < operator
+    inline static bool Equal(T a, T b) { return !(a < b || b < a); }
+
+    
+    // forward read only iterator
+public:
+    struct iterator 
+    {
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type   = std::ptrdiff_t;
+
+        explicit iterator(skip_list_node<T>* node) : node_(node) {}
+        
+        const T& operator*() const { return node_->val; }
+        const T* operator->() const { return *(node_->val); }
+
+        // Prefix increment
+        iterator& operator++() { node_ = node_->next; return *this; }  
+
+        // Postfix increment
+        iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
+        
+        friend bool operator== (const iterator& a, const iterator& b) { return a.node_ == b.node_; }
+        friend bool operator!= (const iterator& a, const iterator& b) { return a.node_ != b.node_; }
+        
+    private:
+        skip_list_node<T>* node_;
+    };
+    
+    iterator begin() const { return iterator(!layers_.empty() ? layers_.front() : nullptr); }
+    
+    iterator end() const { return iterator(nullptr); }
 };
 
 
@@ -124,7 +150,7 @@ skip_list<T>::skip_list(skip_list&& other) noexcept: layers_(std::move(other.lay
 template <typename T>
 skip_list<T>& skip_list<T>::operator=(const skip_list& other)
 {
-    skip_list<T>::Clear();
+    Clear();
     auto node = other.layers_[0];
     while (node)
     {
@@ -150,7 +176,7 @@ skip_list<T>& skip_list<T>::operator=(skip_list&& other) noexcept
 template <typename T>
 skip_list<T>::~skip_list()
 {
-    skip_list<T>::Clear();
+    Clear();
 }
 
 /*
@@ -184,7 +210,8 @@ void skip_list<T>::Insert(T val)
     skip_list_node<T>* current = layers_[layer];
     
     // move down start of layers if val smaller than current
-    while (layer > 0 && current->val > val)
+    // while (layer > 0 && current->val > val)
+    while (layer > 0 && val < current->val)
         current = layers_[--layer];
 
     // cache how to go back up where we went down
@@ -193,7 +220,7 @@ void skip_list<T>::Insert(T val)
     while (true)
     {
         // search current layer while value is less than current
-        while (current->next && current->next->val <= val) current = current->next;
+        while (current->next && Less_Or_Equal(current->next->val, val)) current = current->next;
 
         // go down a layer if there is one
         if (current->down)
@@ -208,7 +235,7 @@ void skip_list<T>::Insert(T val)
     skip_list_node<T>* new_node;
 
     // insert at front
-    if (current->val > val) layers_[0] = new_node = new skip_list_node<T>(val, current);
+    if (val < current->val) layers_[0] = new_node = new skip_list_node<T>(val, current);
 
     // insert inside list
     else new_node = new skip_list_node<T>(val, current->next, current);
@@ -315,18 +342,18 @@ void skip_list<T>::Clear()
 
 /*
  * Prints the skip_list.
- * Prints all layers if internal_representation is true, otherwise only the lowest layer is displayed.
+ * Prints all layers if internal_rep is true, otherwise only the lowest layer is displayed.
  */
 template <typename T>
-void skip_list<T>::Print(bool internal_representation)
+void skip_list<T>::Print(const bool internal_rep)
 {
-    const int n = internal_representation ? static_cast<int>(layers_.size()) : 1;
+    const int n = internal_rep ? static_cast<int>(layers_.size()) : 1;
 
-    if (internal_representation && size_ == 0) std::cout << " Empty" << std::endl;
+    if (internal_rep && size_ == 0) std::cout << " Empty" << std::endl;
     
     for (int i = 0; i < n; ++i)
     {
-        if (internal_representation) std::cout << " Layer " << i << ":";
+        if (internal_rep) std::cout << " Layer " << i << ":";
         
         auto current = layers_[i];
         while (current)
@@ -336,7 +363,7 @@ void skip_list<T>::Print(bool internal_representation)
         }
         std::cout << std::endl;
     }
-    if (internal_representation) std::cout << " Size: " << size_ << std::endl;
+    if (internal_rep) std::cout << " Size: " << size_ << std::endl;
     std::cout << std::endl;
 }
 
@@ -356,19 +383,20 @@ skip_list_node<T>* skip_list<T>::Find(T val, int& layer)
     skip_list_node<T>* current = layers_[layer];
     
     // move down start of layers if val is smaller than first in layer
-    while (layer > 0 && current->val > val)
+    while (layer > 0 && val < current->val)
         current = layers_[--layer];
     
     // smaller than min, not in list
-    if (current->val > val) return nullptr;
+    if (val < current->val) return nullptr;
 
     // search through each layer until we find the value
     while (current)
     {
-        // search current layer while value is less than current
-        while (current->next && current->next->val <= val) current = current->next;
-        
-        if (current->val == val || !current->down) break;
+        // search current layer while value is less or equal current
+        while (current->next && Less_Or_Equal(current->next->val, val)) current = current->next;
+
+        // first condition indicates val and current->val are equal after previous loop
+        if (!(current->val < val) || !current->down) break;
 
         // continue down a layer
         current = current->down;
@@ -376,35 +404,7 @@ skip_list_node<T>* skip_list<T>::Find(T val, int& layer)
     }
     
     // will have found it by now if it exists
-    if (current->val == val) return current;
+    if (Equal(current->val, val)) return current;
     
     return nullptr;
-}
-
-/*
- * clear and fill the container with sequential elements from min to max
- */
-template <typename T>
-void skip_list<T>::Fill(T min, T max)
-{
-    Clear();
-    for (T i = max; i > min; --i) Insert(i);
-}
-
-/*
- * returns the values of the list as a vector
- */
-template <typename T>
-std::vector<T> skip_list<T>::AsVector() const
-{
-    std::vector<T> v;
-    if (size_ == 0) return v;
-    v.reserve(size_);
-    auto node = layers_[0];
-    while (node)
-    {
-        v.push_back(node->val);
-        node = node->next;
-    }
-    return v;
 }

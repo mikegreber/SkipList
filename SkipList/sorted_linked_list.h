@@ -4,7 +4,7 @@
  * Uses std::list<T>.
  * Insert(), Remove(), and Contains() use STL find algorithms.
  *
- * Should work with any container element type that defines <,>, ==, !=, and operator++().
+ * Works with any element type that defines <,>, ==, !=, and operator++().
  *
  * Author: Mike Greber
  */
@@ -46,6 +46,12 @@ public:
 
 private:
 	std::list<T> list_;
+
+	// less than or equal comparison using only < operator
+	inline static bool Less_Or_Equal(T a, T b){ return !(b < a); }
+
+	// equality comparison using only < operator
+	inline static bool Equal(T a, T b) { return !(a < b || b < a); }
 };
 
 /*
@@ -65,7 +71,8 @@ void sorted_linked_list<T>::Insert(T val)
 {
 	auto it =
 		std::find_if(list_.begin(), list_.end(),
-		[&](const T& a) { return a >= val; });
+		[&](const T& a) { return !(a < val); });
+		// [&](const T& a) { return a >= val; });
 
 	list_.insert(it, val);
 }
@@ -111,7 +118,7 @@ template <typename T>
 void sorted_linked_list<T>::Fill(T min, T max) 
 {
 	Clear();
-	for (T i = min; i <= max; ++i) list_.push_back(i);
+	for (T i = min; !(max < i); ++i) list_.push_back(i);
 }
 
 /*

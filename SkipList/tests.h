@@ -6,4 +6,4 @@
 
 void run_performance_test();
 void run_correctness_test();
-void run_free_test();
+void run_demo();

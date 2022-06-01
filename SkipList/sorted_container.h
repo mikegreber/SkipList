@@ -47,6 +47,8 @@ public:
 	
 	// prints the contents of container
 	void Print();
+	
+	void Fill(typename Container::value_type min, typename Container::value_type max) override;
 
 private:
 	std::string name_;
@@ -134,6 +136,15 @@ void sorted_container<Container>::Print()
 {
 	for (auto i : container_) std::cout << i << " ";
 	std::cout << std::endl;
+}
+
+template <class Container>
+void sorted_container<Container>::Fill(typename Container::value_type min, typename Container::value_type max)
+{
+	for (int i = min; !(max < i); ++i)
+	{
+		container_.push_back(i);
+	}
 }
 
 

@@ -74,7 +74,7 @@ template <typename T>
 bool sorted_vector<T>::Remove(T val)
 {
 	auto it = std::lower_bound(vector_.begin(), vector_.end(), val);
-	if (it != vector_.end() && *it == val)
+	if (it != vector_.end() && !(*it < val || val < *it))
 	{
 		vector_.erase(it);
 		return true;
@@ -107,7 +107,7 @@ template <typename T>
 void sorted_vector<T>::Fill(T min, T max)
 {
 	Clear();
-	for (T i = min; i <= max; ++i) vector_.push_back(i);
+	for (T i = min; !(max < i); ++i) vector_.push_back(i);
 }
 
 /*
