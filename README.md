@@ -20,6 +20,9 @@ This implementation achieves O(logn) runtime for Insert(), Remove(), and Contain
 #### skip_list.h
    - contains the skip list template data structure.
 
+#### skip_list_test.h
+   - contains the skip list wrapped to implement the sorted_list.h interface for performance comparison.
+
 #### sorted_linked_list.h
    - contains a template for a sorted linked list using std::list along with std::find algorithms 
      for performance comparison.
